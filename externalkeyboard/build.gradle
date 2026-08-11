@@ -10,7 +10,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    namespace 'fr.bepo.clavierexterne'
+    namespace 'fr.ergol.externalkeyboard'
     compileSdk 34
 
     defaultConfig {

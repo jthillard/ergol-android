@@ -1,0 +1,27 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@drawable/ergol">
+        <receiver android:name=".ExternalKeyboardErgol" android:label="@string/app_name" android:exported="true">
+            <intent-filter>
+                <action android:name="android.hardware.input.action.QUERY_KEYBOARD_LAYOUTS"/>
+            </intent-filter>
+            <meta-data android:name="android.hardware.input.metadata.KEYBOARD_LAYOUTS" android:resource="@xml/ergol"/>
+        </receiver>
+
+        <service android:name=".ErgolInputMethodService"
+            android:label="@string/ergol_ime_label"
+            android:description="@string/ergol_ime_description"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im"
+                android:resource="@xml/method"/>
+        </service>
+    </application>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+
+</manifest>

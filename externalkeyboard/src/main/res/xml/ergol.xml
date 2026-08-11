@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <keyboard-layouts xmlns:android="http://schemas.android.com/apk/res/android">
+     <keyboard-layout android:name="ergol"
+             android:label="@string/keyboard_layout_fr_ergol_label"
+             android:keyboardLayout="@raw/ergol" />
+ </keyboard-layouts>
