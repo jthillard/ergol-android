@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 // https://developer.android.com/studio/publish/app-signing.html#secure-shared-keystore
 // Create a variable called keystorePropertiesFile, and initialize it to your
@@ -10,14 +10,18 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    namespace 'fr.bepo.clavierexterne'
+    compileSdk 34
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 3
         versionName "1.3"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     signingConfigs {
         config {
