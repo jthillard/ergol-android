@@ -1,6 +1,9 @@
 package fr.ergol.externalkeyboard;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -8,6 +11,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 
 /**
  * Minimal IME for Ergo'L: restores the "star key" (physically KEYCODE_O with
@@ -31,8 +36,13 @@ import android.view.inputmethod.InputConnection;
  * InputConnection.commitText(), a mechanism far more universally supported
  * than accessibility actions.
  *
- * No virtual keyboard is ever shown: this IME is meant for exclusive use
- * with a physical keyboard (Sofle / other Ergo'L keyboard).
+ * No virtual keyboard is shown while a physical keyboard is connected: this
+ * IME is meant for exclusive use with a physical keyboard (Sofle / other
+ * Ergo'L keyboard). If the physical keyboard gets disconnected while this
+ * IME is still active, there would otherwise be no way to type or to switch
+ * back without leaving the app to open Settings; instead, a single button
+ * is shown, whose only purpose is to switch back to the previously active
+ * input method.
  *
  * Activation: Settings → Languages and input → Keyboards → enable "Ergo'L
  * (star key)", then select it as the active input method (keyboard icon in
@@ -63,19 +73,57 @@ public class ErgolInputMethodService extends InputMethodService {
                 && !event.isMetaPressed();
     }
 
+    private boolean isHardwareKeyboardConnected() {
+        return getResources().getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS;
+    }
+
+    private void switchToPreviousKeyboard() {
+        Log.d(TAG, "switching back to the previous input method");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && switchToPreviousInputMethod()) {
+            return;
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showInputMethodPicker();
+        }
+    }
+
     @Override
     public boolean onEvaluateInputViewShown() {
-        // never show a virtual keyboard: exclusive use with a physical keyboard
-        return false;
+        // only show a view when no hardware keyboard is connected: gives a
+        // way back to the previous keyboard if the physical Ergo'L keyboard
+        // was unplugged while this IME was still active
+        return !isHardwareKeyboardConnected();
     }
 
     @Override
     public View onCreateInputView() {
+        if (!isHardwareKeyboardConnected()) {
+            Button button = new Button(this);
+            button.setText(R.string.ergol_switch_keyboard_button);
+            button.setOnClickListener(v -> switchToPreviousKeyboard());
+            // the default Material button drawable bakes in insets for its
+            // shadow, which show up as blank margin around the button; a
+            // plain background avoids that
+            button.setBackgroundColor(0xFFDDDDDD);
+            button.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            return button;
+        }
         // empty fallback view, in case the framework requires one despite
         // onEvaluateInputViewShown() == false
         View empty = new View(this);
         empty.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0));
         return empty;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // re-evaluate onEvaluateInputViewShown() immediately: shows the
+        // "switch back" button as soon as the physical keyboard is unplugged,
+        // without waiting for the next input field focus
+        updateInputViewShown();
     }
 
     @Override

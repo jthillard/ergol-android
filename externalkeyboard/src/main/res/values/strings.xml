@@ -2,5 +2,6 @@
     <string name="app_name">Ergo\'L external keyboard</string>
     <string name="keyboard_layout_fr_ergol_label">French (Ergo\'L)</string>
     <string name="ergol_ime_label">Ergo\'L</string>
-    <string name="ergol_ime_description">Physical Ergo\'L keyboard. No virtual keyboard is shown; for use with an external physical keyboard only.</string>
+    <string name="ergol_ime_description">Physical Ergo\'L keyboard. No virtual keyboard is shown while a physical keyboard is connected.</string>
+    <string name="ergol_switch_keyboard_button">Switch back to previous keyboard</string>
 </resources>
